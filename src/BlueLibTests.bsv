@@ -5,33 +5,51 @@ interface TestHandler;
     method Bool done();
 endinterface
 
-typedef enum {
-    BLUE,
-    RED,
-    YELLOW,
-    GREEN,
-    NORMAL
-    } DisplayColors deriving(Bits, Eq, FShow);
+typedef enum{
+    RED = 1,
+    GREEN = 2,
+    YELLOW = 3,
+    BLUE = 4,
+    MAGENTA = 5,
+    CYAN = 6,
+    WHITE = 7
+} TermColor deriving(Eq, Bits);
 
-function Action printColor(DisplayColors color, Fmt text);
-    action
-        Fmt colorFmt = ?;
-        case(color)
-            BLUE: colorFmt = $format("%c[34m",27);
-            RED: colorFmt = $format("%c[31m",27);
-            YELLOW: colorFmt = $format("%c[33m",27);
-            GREEN: colorFmt = $format("%c[32m",27);
-            NORMAL: colorFmt = $format("");
-        endcase
-        $display(colorFmt + text + $format("%c[0m",27));
-    endaction
+//the function names become ugly really fast but can easily be aliased wherever needed
+
+function Fmt color_format(TermColor tc) = $format("\x1b[3%01dm", tc);
+
+String mod_prefix = "[" +  genModuleName + "]";
+
+function Fmt color_string(String s, TermColor tc);
+    return color_format(tc) + $format("%s", s) + color_format(WHITE);
 endfunction
 
-function Action printColorTimed(DisplayColors color, Fmt text);
-    action
-        let s <- $time;
-        printColor(color, $format("(%0d) ", s) + text);
-    endaction
-endfunction
+function Fmt color_fmt(Fmt f, TermColor tc) = color_format(tc) + f + color_format(WHITE);
+
+function Action print_mod_prefixed_s(String s) = $display(mod_prefix + s);
+
+function Action print_mod_prefixed(Fmt fmt) = $display($format("%s", mod_prefix) + fmt);
+
+function Action print_mod_pre_color_s(String s, TermColor tc) = 
+    $display($format("%s", mod_prefix) + color_string(s, tc));
+
+function Action print_mod_pre_color(Fmt fmt, TermColor tc) = 
+    $display($format("%s", mod_prefix) + color_fmt(fmt, tc));
+
+function Action print_mod_pre_color_t_s(String s, TermColor tc) = 
+action
+    let t <- $time();
+    Fmt prefix = $format("[t=%0d]%s", t, mod_prefix);
+    $display(prefix + color_string(s, tc));
+endaction;
+
+function Action print_mod_pre_color_t_f(Fmt f, TermColor tc) = 
+action
+    let t <- $time();
+    Fmt prefix = $format("[t=%0d]%s", t, mod_prefix);
+    $display(prefix + color_fmt(f, tc));
+endaction;
+
 
 endpackage
