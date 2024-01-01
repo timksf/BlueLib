@@ -51,5 +51,8 @@ action
     $display(prefix + color_fmt(f, tc));
 endaction;
 
+//preserve backward compatibility
+function Action printColorTimed(TermColor tc, Fmt f) = print_mod_pre_color_t_f(f, tc);
+
 
 endpackage
