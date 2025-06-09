@@ -42,6 +42,7 @@ action
     let t <- $time();
     Fmt prefix = $format("[t=%0d]%s", t, mod_prefix);
     $display(prefix + color_string(s, tc));
+    $fflush();
 endaction;
 
 function Action print_mod_pre_color_t_f(Fmt f, TermColor tc) = 
