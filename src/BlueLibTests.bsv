@@ -50,6 +50,7 @@ action
     let t <- $time();
     Fmt prefix = $format("[t=%0d]%s", t, mod_prefix);
     $display(prefix + color_fmt(f, tc));
+    $fflush();
 endaction;
 
 //preserve backward compatibility
